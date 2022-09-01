@@ -2,20 +2,21 @@ import { Effect, ImmerReducer, Reducer, Subscription } from 'umi';
 
 export interface AppModelState {
   name: string;
+  userInfo: object;
 }
 
 export interface AppModelType {
   namespace: 'app';
   state: AppModelState;
   effects: {
-    query: Effect;
+    [key: string]: Effect;
   };
   reducers: {
-    save: Reducer<AppModelState>;
+    [key : string]: Reducer<AppModelState>;
     // 启用 immer 之后
     // save: ImmerReducer<IndexModelState>;
   };
-  subscriptions: { setup: Subscription };
+  subscriptions: { setup: Subscription } | {};
 }
 
 const AppModel: AppModelType = {
@@ -23,38 +24,27 @@ const AppModel: AppModelType = {
 
   state: {
     name: '',
+    userInfo: {},
   },
 
   effects: {
-    *query({ payload }, { call, put }) {
+    *setUserInfo({ payload }, { call, put }) {
         yield put({
-            type: 'save',
+            type: 'putUserInfo',
             payload: payload
         });
     },
   },
   reducers: {
-    save(state, action) {
+    putUserInfo(state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
-    // 启用 immer 之后
-    // save(state, action) {
-    //   state.name = action.payload;
-    // },
   },
   subscriptions: {
-    setup({ dispatch, history }) {
-      return history.listen(({ pathname }) => {
-        if (pathname === '/') {
-          dispatch({
-            type: 'query',
-          });
-        }
-      });
-    },
+
   },
 };
 
